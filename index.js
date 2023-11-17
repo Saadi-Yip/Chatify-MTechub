@@ -74,7 +74,7 @@ app.post("/signup", async (req, res) => {
     await user.save();
     res.status(201).json({ message: "User created successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: `Internal server error, ${error.message}` });
   }
 });
 
@@ -101,7 +101,7 @@ app.post("/login", async (req, res) => {
     });
     res.status(200).json({ token, userId: user._id });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: `Internal server error, ${error.message}` });
   }
 });
 
@@ -201,7 +201,7 @@ app.get("/users", authenticateUser, async (req, res) => {
       }))
     );
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: `Internal server error, ${error.message}` });
   }
 });
 
@@ -218,7 +218,7 @@ app.get("/messages/:userId", authenticateUser, async (req, res) => {
 
     res.json(messages);
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: `Internal server error, ${error.message}` });
   }
 });
 
