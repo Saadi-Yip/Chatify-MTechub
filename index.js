@@ -86,9 +86,9 @@ app.post("/login", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    if (password != user.password) {
+    if (password !== user.password) {
       return res.status(401).json({
-        error: `Invalid Password, ${password} sent and user has ${user.password}`,
+        error: `Invalid Password, ${password} sent and user has ${user}`,
       });
     }
 
