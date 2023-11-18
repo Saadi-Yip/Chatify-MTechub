@@ -3,7 +3,6 @@ const http = require("http");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const bodyParser = require("body-parser");
 const socketIO = require("socket.io");
 const multer = require("multer");
 const path = require("path");
@@ -33,12 +32,9 @@ const Message = mongoose.model(
 );
 
 // Middleware for parsing JSON
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
-
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", ["*", "http://localhost:3000"]);
-  res.header("Access-Control-Allow-Headers", ["*", "http://localhost:3000"]);
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "*");
   next();
 });
 
@@ -165,6 +161,17 @@ io.on("connection", (socket) => {
           timestamp: new Date().toISOString(),
         });
 
+        // If the message includes an image, handle it accordingly
+        if (image) {
+          // Extract image data from the FormData
+          console.log(image);
+          const imageData = {
+            filename: image.filename,
+            // Add any other necessary details about the image
+          };
+          message.image = imageData;
+        }
+
         // Save the message to the database
         await message.save();
 
@@ -182,43 +189,18 @@ io.on("connection", (socket) => {
       }
     }
   );
-  socket.on("send-image", async ({ image, receiverId, senderId }) => {
-    try {
-      const message = new Message({
-        sender: senderId,
-        receiver: receiverId,
-        content: "",
-        image: image,
-        timestamp: new Date().toISOString(),
-      });
-
-      // Save the message to the database
-      await message.save();
-
-      // Send the image to the sender
-      io.to(socket.id).emit("receive-image", { message });
-
-      // If the receiver is online, send the image to them as well
-      const receiver = await User.findById(receiverId);
-      if (receiver && receiver.online && receiver.socketId) {
-        io.to(receiver.socketId).emit("receive-image", { message });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  });
 });
 
 // Image upload route
-app.post("/upload", upload.single("image"), async (req, res) => {
-  // const image = req.file.buffer.toString("base64");
-  const { senderId, receiverId } = req.body;
-  console.log(senderId, receiverId, image);
-  io.emit("send-image", { image: "abc", receiverId, senderId });
+// Multer endpoint for uploading images
+app.post("/upload", upload.single("image"), (req, res) => {
+  const image = req.file.buffer.toString("base64");
+  const username = req.body.username;
+
+  io.emit("image", { username, image });
 
   res.status(200).send("Image uploaded successfully");
 });
-
 // Get all users for the logged-in user
 app.get("/users", authenticateUser, async (req, res) => {
   try {
