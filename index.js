@@ -25,7 +25,7 @@ const Message = mongoose.model(
     receiver: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     content: String,
     timestamp: { type: Date, default: Date.now },
-    image: String, // Store image filename or URL
+    image: String,
   })
 );
 
@@ -183,18 +183,18 @@ io.on("connection", (socket) => {
 // Multer endpoint for uploading images
 app.post("/upload", upload.single("image"), async (req, res) => {
   let image_upload = await cloudinary.uploader.upload(req.file.path);
-  const username = req.body.username;
-  let data = {
-    image: image_upload && image_upload.secure_url,
-    receiver: req.body.receiverId,
-    senderId: req.body.senderId,
-    content: "",
-    timestamp: new Date().toISOString(),
-  };
-  const message = await Message.create(data);
-  message && io.emit("image", message);
+  // const username = req.body.username;
+  // let data = {
+  //   image: image_upload && image_upload.secure_url,
+  //   receiver: req.body.receiverId,
+  //   senderId: req.body.senderId,
+  //   content: "",
+  //   timestamp: new Date().toISOString(),
+  // };
+  // const message = await Message.create(data);
+  // message && io.emit("image", message);
 
-  res.status(200).send("Image uploaded successfully", message);
+  res.status(200).send("Image uploaded successfully", image_upload.secure_url);
 });
 // Get all users for the logged-in user
 app.get("/users", authenticateUser, async (req, res) => {
