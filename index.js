@@ -170,7 +170,7 @@ io.on("connection", (socket) => {
   socket.on("send-message", async ({ content, receiverId, image }) => {
     try {
       const senderId = socket.userId;
-
+      console.log("socket...............", socket);
       // Create a new message instance with the appropriate fields
       const message = new Message({
         sender: senderId,
@@ -234,7 +234,7 @@ app.get("/messages/:userId", authenticateUser, async (req, res) => {
         { sender: userId, receiver: req.userId },
       ],
     }).sort({ timestamp: 1 });
-
+    console.log(messages);
     res.json(messages);
   } catch (error) {
     res.status(500).json({ error: `Internal server error, ${error.message}` });
