@@ -223,8 +223,9 @@ app.post("/upload", upload.single("image"), async (req, res) => {
       timestamp: new Date().toISOString(),
     };
     // await io.to(data.receiver.socketId).emit("image", data);
+    const sender = await User.findById(data.sender);
     const message = await Message.create(data);
-    io.to(sender.socketId).emit("receive-message", { message });
+    sender && io.to(sender.socketId).emit("receive-message", { message });
 
     const receiver = await User.findById(data.receiver);
     if (receiver && receiver.online && receiver.socketId) {
