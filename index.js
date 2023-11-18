@@ -169,8 +169,7 @@ io.on("connection", (socket) => {
   // Handle chat messages
   socket.on("send-message", async ({ content, receiverId, image }) => {
     try {
-      const senderId = socket.userId;
-      console.log("socket...............", socket);
+      const senderId = socket.id;
       // Create a new message instance with the appropriate fields
       const message = new Message({
         sender: senderId,
