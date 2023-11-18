@@ -5,6 +5,7 @@ const socketIO = require("socket.io");
 const User = require("./models/User.js");
 const Message = require("./models/Message.js");
 const routes = require("./routes/index.js");
+const uploadImage = require("./Controllers/uploadImage.js");
 require("./db.js");
 const app = express();
 const server = http.createServer(app);
@@ -95,6 +96,9 @@ io.on("connection", (socket) => {
   socket.on("image", async (data) => {
     handleImageMessage(data);
   });
+});
+app.post("/upload", upload.single("image"), async (req, res) => {
+  uploadImage(req, res, io);
 });
 app.use(routes);
 // Start the server

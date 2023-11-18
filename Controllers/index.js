@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 
 const signup = require("./signup.js");
 const login = require("./login.js");
-const uploadImage = require("./uploadImage.js");
 const getUsers = require("./getUsers.js");
 const getMessagesBetweenUsers = require("./userMessages.js");
 const getAllMessages = require("./getAllMessages.js");
@@ -13,7 +12,6 @@ const getAllMessages = require("./getAllMessages.js");
 module.exports = {
   signup,
   login,
-  uploadImage,
   getUsers,
   getMessagesBetweenUsers,
   getAllMessages,
