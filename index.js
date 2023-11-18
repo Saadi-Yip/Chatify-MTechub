@@ -69,6 +69,12 @@ app.post("/signup", async (req, res) => {
   const { username, password } = req.body;
 
   try {
+    let previousUser = await User.findOne({ username: username });
+    if (previousUser) {
+      return res
+        .status(401)
+        .json({ message: "Please Try Different User Name!" });
+    }
     const user = new User({ username, password });
     await user.save();
     res.status(201).json({ message: "User created successfully" });
@@ -99,7 +105,7 @@ app.post("/login", async (req, res) => {
     const token = jwt.sign({ userId: user._id }, "secret_key", {
       expiresIn: "1h",
     });
-    res.status(200).json({ token, userId: user._id });
+    res.status(200).json({ token, userId: user._id, username: user.username });
   } catch (error) {
     res.status(500).json({ error: `Internal server error, ${error.message}` });
   }
