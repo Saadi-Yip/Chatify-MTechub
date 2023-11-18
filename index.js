@@ -148,7 +148,11 @@ io.on("connection", (socket) => {
 
   // Set user socketId
   socket.on("set-socket-id", async (userId) => {
-    console.log("set-socket-id", userId, socket);
+    console.log(
+      "..................................set-socket-id",
+      userId,
+      socket
+    );
     const user = await User.findById(userId);
     if (user) {
       user.socketId = socket.id;
@@ -162,14 +166,23 @@ io.on("connection", (socket) => {
     "send-message",
     async ({ content, receiverId, senderId, image }) => {
       try {
-        // Create a new message instance with the appropriate fields
         const message = new Message({
           sender: senderId,
           receiver: receiverId,
           content,
-          image,
           timestamp: new Date().toISOString(),
         });
+
+        // If the message includes an image, handle it accordingly
+        if (image) {
+          // Extract image data from the FormData
+          console.log(image);
+          const imageData = {
+            filename: image.filename,
+            // Add any other necessary details about the image
+          };
+          message.image = imageData;
+        }
 
         // Save the message to the database
         await message.save();
