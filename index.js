@@ -123,13 +123,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", async () => {
     console.log(`User disconnected: ${socket.id}`);
-    console.log(`User disconnected: ${socket.id}`);
-    // Mark user as offline
-    if (user) {
-      user.online = false;
-      await user.save();
-      io.emit("update-user-status", { userId: user._id, online: false });
-    }
+
     // Mark user as offline
     const user = await User.findOne({ socketId: socket.id });
     if (user) {
