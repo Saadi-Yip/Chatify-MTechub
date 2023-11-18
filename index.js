@@ -160,7 +160,7 @@ io.on("connection", (socket) => {
         });
         if (image) {
           // Handle image upload and update the message data
-          const image_upload = await cloudinary.uploader.upload(image.path);
+          const image_upload = await cloudinary.uploader.upload(image?.path);
           message.image = image_upload.secure_url;
         }
         consol.log(message);
