@@ -182,6 +182,21 @@ io.on("connection", (socket) => {
       }
     }
   );
+  socket.on("image", async (message) => {
+    try {
+      // Send the message to the sender
+      io.to(socket.id).emit("receive-message", { message });
+
+      // If the receiver is online, send the message to them as well
+      const receiver = await User.findById(message?.receiver);
+      console.log("reciever with id", receiver);
+      if (receiver && receiver.online && receiver.socketId) {
+        io.to(receiver.socketId).emit("receive-message", { message });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  });
 });
 
 // Multer endpoint for uploading images
