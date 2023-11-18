@@ -158,9 +158,12 @@ io.on("connection", (socket) => {
           content,
           timestamp: new Date().toISOString(),
         });
-
-        // If the message includes an image, handle it accordingly
-
+        if (image) {
+          // Handle image upload and update the message data
+          const image_upload = await cloudinary.uploader.upload(image.path);
+          message.image = image_upload.secure_url;
+        }
+        consol.log(message);
         // Save the message to the database
         await message.save();
 
