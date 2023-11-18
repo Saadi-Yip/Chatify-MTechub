@@ -8,6 +8,7 @@ const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
 const User = require("./models/User.js");
+const upload = require("./middleware/Multer.js");
 require("./db.js");
 const app = express();
 const server = http.createServer(app);
@@ -47,19 +48,6 @@ let corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 // Middleware for handling file uploads (images)
-const storage = multer.diskStorage({
-  destination: "./uploads",
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-
-const upload = multer({
-  storage: storage,
-}).single("image");
 
 // User authentication
 app.post("/signup", async (req, res) => {
@@ -173,17 +161,6 @@ io.on("connection", (socket) => {
           timestamp: new Date().toISOString(),
         });
 
-        // If the message includes an image, handle it accordingly
-        if (image) {
-          // Extract image data from the FormData
-          console.log(image);
-          const imageData = {
-            filename: image.filename,
-            // Add any other necessary details about the image
-          };
-          message.image = imageData;
-        }
-
         // Save the message to the database
         await message.save();
 
@@ -201,16 +178,41 @@ io.on("connection", (socket) => {
       }
     }
   );
+  socket.on("send-image", async ({ image, receiverId, senderId }) => {
+    try {
+      const message = new Message({
+        sender: senderId,
+        receiver: receiverId,
+        content: "",
+        image: image,
+        timestamp: new Date().toISOString(),
+      });
+
+      // Save the message to the database
+      await message.save();
+
+      // Send the image to the sender
+      io.to(socket.id).emit("receive-image", { message });
+
+      // If the receiver is online, send the image to them as well
+      const receiver = await User.findById(receiverId);
+      if (receiver && receiver.online && receiver.socketId) {
+        io.to(receiver.socketId).emit("receive-image", { message });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  });
 });
 
 // Image upload route
-app.post("/upload", authenticateUser, (req, res) => {
-  upload(req, res, (err) => {
-    if (err) {
-      return res.status(500).json({ error: "Error uploading file" });
-    }
-    res.json({ filename: req.file.filename });
-  });
+app.post("/upload", upload.single("image"), async (req, res) => {
+  const image = req.file.buffer.toString("base64");
+  const { senderId, receiverId } = req.body;
+
+  io.emit("send-image", { image, receiverId, senderId });
+
+  res.status(200).send("Image uploaded successfully");
 });
 
 // Get all users for the logged-in user
