@@ -59,7 +59,13 @@ app.post("/signup", async (req, res) => {
         .json({ message: "Please Try Different User Name!" });
     }
     const user = new User({ username, password });
+    // Mark user as online
+    user.online = true;
     await user.save();
+
+    const token = jwt.sign({ userId: user._id }, "secret_key", {
+      expiresIn: "1h",
+    });
     res.status(200).json({ token, userId: user._id, username: user.username });
   } catch (error) {
     res.status(500).json({ error: `Internal server error, ${error.message}` });
