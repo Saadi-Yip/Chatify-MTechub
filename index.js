@@ -12,7 +12,11 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
-    origin: ["http://localhost:3000", "*"],
+    origin: [
+      "http://localhost:3000",
+      "*",
+      "https://chatify-m-techub.vercel.app/chat",
+    ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   },
 });
@@ -37,7 +41,7 @@ app.use((req, res, next) => {
 });
 
 let corsOptions = {
-  origin: ["http://localhost:3000", "*"],
+  origin: ["http://localhost:3000", "*", "https://chatify-m-techub.vercel.app"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   optionsSuccessStatus: 200,
   allowedHeaders: ["Content-Type", "Authorization"], // Add any other headers you need
@@ -220,7 +224,7 @@ app.post("/upload", upload.single("image"), async (req, res) => {
     sender && io.to(sender.socketId).emit("receive-message", { message });
 
     const receiver = await User.findById(data.receiver);
-    console.log("////////", receiver);
+    console.log(receiver);
     if (receiver && receiver.online && receiver.socketId) {
       console.log(receiver && receiver.online && receiver.socketId);
       io.to(receiver.socketId)
