@@ -165,29 +165,16 @@ io.on("connection", (socket) => {
       io.emit("update-user-status", { userId, online: true });
     }
   });
+
+  // Handle chat messages
   socket.on(
     "send-message",
     async ({ content, receiverId, senderId, image }) => {
       try {
-        const sender = await User.findById(senderId);
-        const receiver = await User.findById(receiverId);
-
-        // Check if both sender and receiver exist
-        if (!sender || !receiver) {
-          console.log("Sender or receiver not found");
-          return;
-        }
-
         // Create a new message instance with the appropriate fields
         const message = new Message({
-          sender: {
-            user: new mongoose.Types.ObjectId(senderId),
-            name: sender.username,
-          },
-          receiver: {
-            user: new mongoose.Types.ObjectId(receiverId),
-            name: receiver.username,
-          },
+          sender: senderId,
+          receiver: receiverId,
           content,
           image,
           timestamp: new Date().toISOString(),
@@ -200,6 +187,7 @@ io.on("connection", (socket) => {
         io.to(socket.id).emit("receive-message", { message });
 
         // If the receiver is online, send the message to them as well
+        const receiver = await User.findById(receiverId);
         if (receiver && receiver.online && receiver.socketId) {
           io.to(receiver.socketId).emit("receive-message", { message });
         }
