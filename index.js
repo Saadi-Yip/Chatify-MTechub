@@ -171,9 +171,15 @@ io.on("connection", (socket) => {
       try {
         const sender = await User.findById(senderId);
         const receiver = await User.findById(receiverId);
-        // Create a new message instance with the appropriate fields
 
-        const data = {
+        // Check if both sender and receiver exist
+        if (!sender || !receiver) {
+          console.log("Sender or receiver not found");
+          return;
+        }
+
+        // Create a new message instance with the appropriate fields
+        const message = new Message({
           sender: {
             user: mongoose.Types.ObjectId(senderId),
             name: sender.username,
@@ -185,8 +191,7 @@ io.on("connection", (socket) => {
           content,
           image,
           timestamp: new Date().toISOString(),
-        };
-        const message = await Message.create(data);
+        });
 
         // Save the message to the database
         await message.save();
