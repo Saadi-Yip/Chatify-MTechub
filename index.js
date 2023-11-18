@@ -222,9 +222,14 @@ app.post("/upload", upload.single("image"), async (req, res) => {
       content: "",
       timestamp: new Date().toISOString(),
     };
-    await io.to(data.receiver.socketId).emit("image", data);
+    // await io.to(data.receiver.socketId).emit("image", data);
     const message = await Message.create(data);
+    io.to(sender.socketId).emit("receive-message", { message });
 
+    const receiver = await User.findById(data.receiver);
+    if (receiver && receiver.online && receiver.socketId) {
+      io.to(receiver.socketId).emit("receive-message", { message });
+    }
     res.status(200).send("Image uploaded successfully");
   } catch (err) {
     res.status(500).send(err.message);
