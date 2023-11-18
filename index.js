@@ -60,7 +60,7 @@ app.post("/signup", async (req, res) => {
     }
     const user = new User({ username, password });
     await user.save();
-    res.status(201).json({ message: "User created successfully" });
+    res.status(200).json({ token, userId: user._id, username: user.username });
   } catch (error) {
     res.status(500).json({ error: `Internal server error, ${error.message}` });
   }
