@@ -165,35 +165,37 @@ io.on("connection", (socket) => {
       io.emit("update-user-status", { userId, online: true });
     }
   });
-  socket.on("send-message", async ({ content, receiverId, image }) => {
-    try {
-      const senderId = socket.userId;
-      const sender = await User.findById(senderId);
-      const receiver = await User.findById(receiverId);
+  socket.on(
+    "send-message",
+    async ({ content, receiverId, senderId, image }) => {
+      try {
+        const sender = await User.findById(senderId);
+        const receiver = await User.findById(receiverId);
 
-      // Create a new message instance with the appropriate fields
-      const message = new Message({
-        sender: { user: senderId, name: sender.username },
-        receiver: { user: receiverId, name: receiver.username },
-        content,
-        image,
-        timestamp: new Date().toISOString(),
-      });
+        // Create a new message instance with the appropriate fields
+        const message = new Message({
+          sender: { user: senderId, name: sender.username },
+          receiver: { user: receiverId, name: receiver.username },
+          content,
+          image,
+          timestamp: new Date().toISOString(),
+        });
 
-      // Save the message to the database
-      await message.save();
+        // Save the message to the database
+        await message.save();
 
-      // Send the message to the sender
-      io.to(socket.id).emit("receive-message", { message });
+        // Send the message to the sender
+        io.to(socket.id).emit("receive-message", { message });
 
-      // If the receiver is online, send the message to them as well
-      if (receiver && receiver.online && receiver.socketId) {
-        io.to(receiver.socketId).emit("receive-message", { message });
+        // If the receiver is online, send the message to them as well
+        if (receiver && receiver.online && receiver.socketId) {
+          io.to(receiver.socketId).emit("receive-message", { message });
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
     }
-  });
+  );
 });
 
 // Image upload route
