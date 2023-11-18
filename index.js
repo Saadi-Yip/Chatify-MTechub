@@ -186,19 +186,28 @@ io.on("connection", (socket) => {
 
 // Multer endpoint for uploading images
 app.post("/upload", upload.single("image"), async (req, res) => {
-  let image_upload = await cloudinary.uploader.upload(req.file.path);
-  // const username = req.body.username;
-  // let data = {
-  //   image: image_upload && image_upload.secure_url,
-  //   receiver: req.body.receiverId,
-  //   senderId: req.body.senderId,
-  //   content: "",
-  //   timestamp: new Date().toISOString(),
-  // };
-  // const message = await Message.create(data);
-  // message && io.emit("image", message);
+  if (!req.file) {
+    res.status(404).json({ message: "Image is Required!!" });
+    return true;
+  }
+  try {
+    let image_upload = await cloudinary.uploader.upload(req.file.path);
+    console.log(req.file.path);
 
-  res.status(200).send("Image uploaded successfully");
+    let data = {
+      image: image_upload && image_upload.secure_url,
+      receiver: req.body.receiverId,
+      senderId: req.body.senderId,
+      content: "",
+      timestamp: new Date().toISOString(),
+    };
+    const message = await Message.create(data);
+    message && io.emit("image", message);
+
+    res.status(200).send("Image uploaded successfully");
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 // Get all users for the logged-in user
 app.get("/users", authenticateUser, async (req, res) => {
