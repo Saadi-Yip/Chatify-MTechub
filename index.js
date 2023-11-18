@@ -181,11 +181,11 @@ io.on("connection", (socket) => {
         // Create a new message instance with the appropriate fields
         const message = new Message({
           sender: {
-            user: mongoose.Types.ObjectId(senderId),
+            user: new mongoose.Types.ObjectId(senderId),
             name: sender.username,
           },
           receiver: {
-            user: mongoose.Types.ObjectId(receiverId),
+            user: new mongoose.Types.ObjectId(receiverId),
             name: receiver.username,
           },
           content,
