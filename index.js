@@ -211,10 +211,10 @@ io.on("connection", (socket) => {
 
 // Image upload route
 app.post("/upload", upload.single("image"), async (req, res) => {
-  const image = req.file.buffer.toString("base64");
+  // const image = req.file.buffer.toString("base64");
   const { senderId, receiverId } = req.body;
-
-  io.emit("send-image", { image, receiverId, senderId });
+  console.log(senderId, receiverId, image);
+  io.emit("send-image", { image: "abc", receiverId, senderId });
 
   res.status(200).send("Image uploaded successfully");
 });
