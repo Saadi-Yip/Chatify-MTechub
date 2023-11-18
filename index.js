@@ -168,6 +168,7 @@ io.on("connection", (socket) => {
   // Handle chat messages
   socket.on("send-message", async ({ content, receiverId, image }) => {
     try {
+      console.log("Received message:", content, receiverId, image);
       const senderId = socket.userId;
       const message = new Message({
         sender: senderId,
