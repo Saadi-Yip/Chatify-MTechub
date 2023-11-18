@@ -168,14 +168,18 @@ io.on("connection", (socket) => {
   // Handle chat messages
   socket.on("send-message", async ({ content, receiverId, image }) => {
     try {
-      console.log("Received message:", content, receiverId, image);
       const senderId = socket.userId;
+
+      // Create a new message instance with the appropriate fields
       const message = new Message({
         sender: senderId,
         receiver: receiverId,
         content,
         image,
+        timestamp: new Date().toISOString(),
       });
+
+      // Save the message to the database
       await message.save();
 
       // Send the message to the sender
