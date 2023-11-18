@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
   sender: {
-    type: mongoose.Schema.Types.Mixed, // This allows storing any type of data
+    type: String, // This allows storing any type of data
     required: true,
   },
   receiver: {
