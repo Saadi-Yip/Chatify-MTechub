@@ -148,6 +148,27 @@ io.on("connection", (socket) => {
   });
 
   // Handle chat messages
+  const handleImageMessage = async (data) => {
+    try {
+      // Handle image upload and update the message data
+      const image_upload = await cloudinary.uploader.upload(data.image?.path);
+      data.image = image_upload.secure_url;
+
+      // Save the message to the database
+      const message = await Message.create(data);
+
+      // Send the message to the sender
+      io.to(socket.id).emit("receive-message", { message });
+
+      // If the receiver is online, send the message to them as well
+      if (data.receiver && data.receiver.online && data.receiver.socketId) {
+        io.to(data.receiver.socketId).emit("receive-message", { message });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   socket.on(
     "send-message",
     async ({ content, receiverId, senderId, image }) => {
@@ -158,45 +179,29 @@ io.on("connection", (socket) => {
           content,
           timestamp: new Date().toISOString(),
         });
+
         if (image) {
           console.log(image);
-          // Handle image upload and update the message data
-          const image_upload = await cloudinary.uploader.upload(image?.path);
-          message.image = image_upload.secure_url;
-        }
-        console.log(message);
-        // Save the message to the database
-        await message.save();
+          handleImageMessage({ content, receiverId, senderId, image });
+        } else {
+          // Handle text messages
+          await message.save();
+          io.to(socket.id).emit("receive-message", { message });
 
-        // Send the message to the sender
-        io.to(socket.id).emit("receive-message", { message });
-
-        // If the receiver is online, send the message to them as well
-        const receiver = await User.findById(receiverId);
-        console.log("reciever with id", receiver);
-        if (receiver && receiver.online && receiver.socketId) {
-          io.to(receiver.socketId).emit("receive-message", { message });
+          const receiver = await User.findById(receiverId);
+          console.log("receiver with id", receiver);
+          if (receiver && receiver.online && receiver.socketId) {
+            io.to(receiver.socketId).emit("receive-message", { message });
+          }
         }
       } catch (error) {
         console.error(error);
       }
     }
   );
-  socket.on("image", async (data) => {
-    try {
-      // Send the message to the sender
-      const message = data;
-      io.to(socket.id).emit("receive-message", { message });
 
-      // If the receiver is online, send the message to them as well
-      const receiver = await User.findById(message?.receiver);
-      console.log("reciever with id", receiver);
-      if (receiver && receiver.online && receiver.socketId) {
-        io.to(receiver.socketId).emit("receive-message", { message });
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  socket.on("image", async (data) => {
+    handleImageMessage(data);
   });
 });
 
@@ -208,16 +213,16 @@ app.post("/upload", upload.single("image"), async (req, res) => {
   }
   try {
     let image_upload = await cloudinary.uploader.upload(req.file.path);
-    console.log(req.body.senderId, req.body.receiverId);
+    console.log(req.body.senderId, req.body.recieverId);
 
     let data = {
       image: image_upload && image_upload.secure_url,
-      receiver: req.body.recieverId,
+      receiver: req.body.recieverId, // Correct the typo here
       sender: req.body.senderId,
       content: "",
       timestamp: new Date().toISOString(),
     };
-    await io.emit("image", data);
+    await io.to(data.receiver.socketId).emit("image", data);
     const message = await Message.create(data);
 
     res.status(200).send("Image uploaded successfully");
@@ -225,6 +230,7 @@ app.post("/upload", upload.single("image"), async (req, res) => {
     res.status(500).send(err.message);
   }
 });
+
 // Get all users for the logged-in user
 app.get("/users", authenticateUser, async (req, res) => {
   try {
@@ -258,6 +264,7 @@ app.get("/messages/:userId", authenticateUser, async (req, res) => {
     res.status(500).json({ error: `Internal server error, ${error.message}` });
   }
 });
+
 // Get all messages for the logged-in user
 app.get("/messages", authenticateUser, async (req, res) => {
   try {
