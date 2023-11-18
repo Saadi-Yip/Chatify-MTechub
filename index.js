@@ -198,7 +198,7 @@ app.post("/upload", upload.single("image"), async (req, res) => {
   // const message = await Message.create(data);
   // message && io.emit("image", message);
 
-  res.status(200).send("Image uploaded successfully", image_upload.secure_url);
+  res.status(200).send("Image uploaded successfully");
 });
 // Get all users for the logged-in user
 app.get("/users", authenticateUser, async (req, res) => {
