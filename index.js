@@ -134,11 +134,6 @@ io.on("connection", (socket) => {
 
   // Set user socketId
   socket.on("set-socket-id", async (userId) => {
-    console.log(
-      "..................................set-socket-id",
-      userId,
-      socket
-    );
     const user = await User.findById(userId);
     if (user) {
       user.socketId = socket.id;
@@ -181,7 +176,6 @@ io.on("connection", (socket) => {
         });
 
         if (image) {
-          console.log(image);
           handleImageMessage({ content, receiverId, senderId, image });
         } else {
           // Handle text messages
@@ -189,7 +183,6 @@ io.on("connection", (socket) => {
           io.to(socket.id).emit("receive-message", { message });
 
           const receiver = await User.findById(receiverId);
-          console.log("receiver with id", receiver);
           if (receiver && receiver.online && receiver.socketId) {
             io.to(receiver.socketId).emit("receive-message", { message });
           }
@@ -213,7 +206,6 @@ app.post("/upload", upload.single("image"), async (req, res) => {
   }
   try {
     let image_upload = await cloudinary.uploader.upload(req.file.path);
-    console.log(req.body.senderId, req.body.recieverId);
 
     let data = {
       image: image_upload && image_upload.secure_url,
@@ -228,6 +220,7 @@ app.post("/upload", upload.single("image"), async (req, res) => {
     sender && io.to(sender.socketId).emit("receive-message", { message });
 
     const receiver = await User.findById(data.receiver);
+    console.log(receiver);
     if (receiver && receiver.online && receiver.socketId) {
       io.to(receiver.socketId).emit("receive-message", { message });
     }
