@@ -226,6 +226,7 @@ app.get("/users", authenticateUser, async (req, res) => {
 // Get messages between two users
 app.get("/messages/:userId", authenticateUser, async (req, res) => {
   const { userId } = req.params;
+  console.log(userId, req.userId);
   try {
     const messages = await Message.find({
       $or: [
