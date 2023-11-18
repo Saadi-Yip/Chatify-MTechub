@@ -36,7 +36,6 @@ const Message = mongoose.model(
 );
 
 // Middleware for parsing JSON
-app.use(express.json());
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "*");
@@ -44,11 +43,14 @@ app.use((req, res, next) => {
 });
 
 let corsOptions = {
-  origin: "*",
+  origin: ["http://localhost:3000", "*"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200,
+  allowedHeaders: ["Content-Type", "Authorization"], // Add any other headers you need
 };
+
 app.use(cors(corsOptions));
+app.use(express.json());
 // Middleware for handling file uploads (images)
 const storage = multer.diskStorage({
   destination: "./uploads",
