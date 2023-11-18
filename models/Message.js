@@ -1,11 +1,25 @@
 const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
-  fromUser: String,
-  toUser: String,
-  text: String,
-  imageUrl: String,
-  timestamp: String,
+  sender: {
+    type: mongoose.Schema.Types.Mixed, // This allows storing any type of data
+    required: true,
+  },
+  receiver: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true,
+  },
+  content: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true,
+  },
+  image: {
+    type: mongoose.Schema.Types.Mixed,
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const Message = mongoose.model("Message", messageSchema);
