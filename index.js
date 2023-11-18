@@ -188,6 +188,7 @@ io.on("connection", (socket) => {
 
         // If the receiver is online, send the message to them as well
         const receiver = await User.findById(receiverId);
+        console.log("reciever with id", receiver);
         if (receiver && receiver.online && receiver.socketId) {
           io.to(receiver.socketId).emit("receive-message", { message });
         }
