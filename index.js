@@ -252,6 +252,24 @@ app.get("/users", authenticateUser, async (req, res) => {
   }
 });
 
+app.post("/logout", authenticateUser, async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    // Mark the user as offline
+    const user = await User.findById(userId);
+    if (user) {
+      user.online = false;
+      await user.save();
+      io.emit("update-user-status", { userId: user._id, online: false });
+    }
+
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    res.status(500).json({ error: `Internal server error, ${error.message}` });
+  }
+});
+
 // Get messages between two users
 app.get("/messages/:userId", authenticateUser, async (req, res) => {
   const { userId } = req.params;
