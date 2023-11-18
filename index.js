@@ -6,6 +6,8 @@ const User = require("./models/User.js");
 const Message = require("./models/Message.js");
 const routes = require("./routes/index.js");
 const uploadImage = require("./Controllers/uploadImage.js");
+const upload = require("./middleware/Multer.js");
+require("./middleware/index.js");
 require("./db.js");
 const app = express();
 const server = http.createServer(app);
