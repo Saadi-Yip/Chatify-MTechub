@@ -3,6 +3,7 @@ const http = require("http");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const bodyParser = require("body-parser");
 const socketIO = require("socket.io");
 const multer = require("multer");
 const path = require("path");
@@ -32,9 +33,12 @@ const Message = mongoose.model(
 );
 
 // Middleware for parsing JSON
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "*");
+  res.header("Access-Control-Allow-Origin", ["*", "http://localhost:3000"]);
+  res.header("Access-Control-Allow-Headers", ["*", "http://localhost:3000"]);
   next();
 });
 
