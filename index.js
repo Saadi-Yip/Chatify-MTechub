@@ -7,6 +7,7 @@ const socketIO = require("socket.io");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
+const User = require("./models/User.js");
 require("./db.js");
 const app = express();
 const server = http.createServer(app);
@@ -17,16 +18,6 @@ const io = socketIO(server, {
   },
 });
 const PORT = process.env.PORT || 5000;
-
-// Mongoose models
-const User = mongoose.model(
-  "User",
-  new mongoose.Schema({
-    username: String,
-    password: String,
-    online: { type: Boolean, default: false },
-  })
-);
 
 const Message = mongoose.model(
   "Message",
