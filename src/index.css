@@ -202,3 +202,31 @@ img {
 .message.received img {
   margin-right: auto; /* Align received images to the left */
 }
+
+.button {
+  width: 120px;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #4caf50;
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #45a049;
+}
+.current-user {
+  font-weight: bold;
+}
+
+.user-list li:hover {
+  background-color: #f0f0f0; /* Highlight background color on hover */
+}
+
+.user-list li.selected {
+  background-color: #e6f7ff; /* Selected user background color */
+  color: #004080;
+  font-weight: 500;
+}

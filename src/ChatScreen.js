@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import UserList from "./UserList";
 import Chat from "./Chat"; // Import your existing Chat component
 import axios from "axios";
+import LogoutButton from "./components/LogoutButton";
 
 function ChatScreen({ socket }) {
   const [selectedUser, setSelectedUser] = useState(null);
@@ -38,6 +39,7 @@ function ChatScreen({ socket }) {
           onSelectUser={handleSelectUser}
           loggedInUser={user}
         />
+        <LogoutButton />
       </div>
       <div className="chat-window">
         <div className="chat-header">

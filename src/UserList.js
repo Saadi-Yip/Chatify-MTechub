@@ -2,18 +2,21 @@
 import React from "react";
 
 function UserList({ users, onSelectUser, loggedInUser }) {
-  // Filter out the logged-in user from the list
-  const filteredUsers = users.filter(
-    (user) => user.username !== loggedInUser?.username
-  );
-
   return (
-    <div className="user-list">
-      <h2>Users</h2>
-      <ul>
-        {filteredUsers.map((user) => (
-          <li key={user._id} onClick={() => onSelectUser(user)}>
-            {user.username} - {user.online ? "Online" : "Offline"}
+    <div className="user-list-container">
+      <h3>User List</h3>
+      <ul className="user-list">
+        {users.map((user) => (
+          <li
+            key={user._id}
+            className={user._id === loggedInUser.userId ? "current-user" : ""}
+            onClick={() => onSelectUser(user)}
+          >
+            <span
+              className={user._id === loggedInUser.userId ? "current-user" : ""}
+            >
+              {user.username}
+            </span>
           </li>
         ))}
       </ul>
