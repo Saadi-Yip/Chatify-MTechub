@@ -171,11 +171,16 @@ io.on("connection", (socket) => {
       try {
         const sender = await User.findById(senderId);
         const receiver = await User.findById(receiverId);
-        console.log(`Receiver ${receiver}  sender ${sender}`);
         // Create a new message instance with the appropriate fields
         const message = new Message({
-          sender: { user: senderId, name: sender.username },
-          receiver: { user: receiverId, name: receiver.username },
+          sender: {
+            user: mongoose.Types.ObjectId(senderId),
+            name: sender.username,
+          },
+          receiver: {
+            user: mongoose.Types.ObjectId(receiverId),
+            name: receiver.username,
+          },
           content,
           image,
           timestamp: new Date().toISOString(),
