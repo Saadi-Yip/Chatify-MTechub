@@ -209,7 +209,7 @@ app.post("/upload", upload.single("image"), async (req, res) => {
 
     let data = {
       image: image_upload && image_upload.secure_url,
-      receiver: req.body.recieverId, // Correct the typo here
+      receiver: req.body.receiverId,
       sender: req.body.senderId,
       content: "",
       timestamp: new Date().toISOString(),
@@ -220,9 +220,14 @@ app.post("/upload", upload.single("image"), async (req, res) => {
     sender && io.to(sender.socketId).emit("receive-message", { message });
 
     const receiver = await User.findById(data.receiver);
-    console.log(receiver);
+    console.log("////////", receiver);
     if (receiver && receiver.online && receiver.socketId) {
-      io.to(receiver.socketId).emit("receive-message", { message });
+      console.log(receiver && receiver.online && receiver.socketId);
+      io.to(receiver.socketId)
+        .emit("receive-message", { message })
+        .then(() => {
+          console.log("Emmitedddd");
+        });
     }
     res.status(200).send("Image uploaded successfully");
   } catch (err) {
