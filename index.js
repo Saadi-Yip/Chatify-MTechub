@@ -1,11 +1,9 @@
 const express = require("express");
 const http = require("http");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const cloudinary = require("./middleware/Cloudinary.js");
 const jwt = require("jsonwebtoken");
 const socketIO = require("socket.io");
-const multer = require("multer");
-const path = require("path");
 const cors = require("cors");
 const User = require("./models/User.js");
 const upload = require("./middleware/Multer.js");
@@ -162,15 +160,6 @@ io.on("connection", (socket) => {
         });
 
         // If the message includes an image, handle it accordingly
-        if (image) {
-          // Extract image data from the FormData
-          console.log(image);
-          const imageData = {
-            filename: image.filename,
-            // Add any other necessary details about the image
-          };
-          message.image = imageData;
-        }
 
         // Save the message to the database
         await message.save();
@@ -191,15 +180,21 @@ io.on("connection", (socket) => {
   );
 });
 
-// Image upload route
 // Multer endpoint for uploading images
-app.post("/upload", upload.single("image"), (req, res) => {
-  const image = req.file.buffer.toString("base64");
+app.post("/upload", upload.single("image"), async (req, res) => {
+  let image_upload = await cloudinary.uploader.upload(req.file.path);
   const username = req.body.username;
+  let data = {
+    image: image_upload && image_upload.secure_url,
+    receiver: req.body.receiverId,
+    senderId: req.body.senderId,
+    content: "",
+    timestamp: new Date().toISOString(),
+  };
+  const message = await Message.create(data);
+  message && io.emit("image", message);
 
-  io.emit("image", { username, image });
-
-  res.status(200).send("Image uploaded successfully");
+  res.status(200).send("Image uploaded successfully", message);
 });
 // Get all users for the logged-in user
 app.get("/users", authenticateUser, async (req, res) => {
