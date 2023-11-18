@@ -167,33 +167,35 @@ io.on("connection", (socket) => {
   });
 
   // Handle chat messages
-  socket.on("send-message", async ({ content, receiverId, image }) => {
-    try {
-      const senderId = socket.id;
-      // Create a new message instance with the appropriate fields
-      const message = new Message({
-        sender: senderId,
-        receiver: receiverId,
-        content,
-        image,
-        timestamp: new Date().toISOString(),
-      });
+  socket.on(
+    "send-message",
+    async ({ content, receiverId, senderId, image }) => {
+      try {
+        // Create a new message instance with the appropriate fields
+        const message = new Message({
+          sender: senderId,
+          receiver: receiverId,
+          content,
+          image,
+          timestamp: new Date().toISOString(),
+        });
 
-      // Save the message to the database
-      await message.save();
+        // Save the message to the database
+        await message.save();
 
-      // Send the message to the sender
-      io.to(socket.id).emit("receive-message", { message });
+        // Send the message to the sender
+        io.to(socket.id).emit("receive-message", { message });
 
-      // If the receiver is online, send the message to them as well
-      const receiver = await User.findById(receiverId);
-      if (receiver && receiver.online && receiver.socketId) {
-        io.to(receiver.socketId).emit("receive-message", { message });
+        // If the receiver is online, send the message to them as well
+        const receiver = await User.findById(receiverId);
+        if (receiver && receiver.online && receiver.socketId) {
+          io.to(receiver.socketId).emit("receive-message", { message });
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
     }
-  });
+  );
 });
 
 // Image upload route
