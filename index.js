@@ -192,7 +192,7 @@ app.post("/upload", upload.single("image"), async (req, res) => {
   }
   try {
     let image_upload = await cloudinary.uploader.upload(req.file.path);
-    console.log(req.file.path);
+    console.log(req.body);
 
     let data = {
       image: image_upload && image_upload.secure_url,
