@@ -182,9 +182,10 @@ io.on("connection", (socket) => {
       }
     }
   );
-  socket.on("image", async (message) => {
+  socket.on("image", async (data) => {
     try {
       // Send the message to the sender
+      const message = data;
       io.to(socket.id).emit("receive-message", { message });
 
       // If the receiver is online, send the message to them as well
@@ -216,8 +217,8 @@ app.post("/upload", upload.single("image"), async (req, res) => {
       content: "",
       timestamp: new Date().toISOString(),
     };
+    await io.emit("image", data);
     const message = await Message.create(data);
-    message && io.emit("image", message);
 
     res.status(200).send("Image uploaded successfully");
   } catch (err) {
