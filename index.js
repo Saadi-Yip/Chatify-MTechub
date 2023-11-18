@@ -157,6 +157,7 @@ io.on("connection", (socket) => {
 
   // Set user socketId
   socket.on("set-socket-id", async (userId) => {
+    console.log("set-socket-id", userId, socket);
     const user = await User.findById(userId);
     if (user) {
       user.socketId = socket.id;
