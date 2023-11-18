@@ -192,12 +192,12 @@ app.post("/upload", upload.single("image"), async (req, res) => {
   }
   try {
     let image_upload = await cloudinary.uploader.upload(req.file.path);
-    console.log(req.body);
+    console.log(req.body.senderId, req.body.receiverId);
 
     let data = {
       image: image_upload && image_upload.secure_url,
-      receiver: req.body.receiverId,
-      senderId: req.body.senderId,
+      receiver: req.body.recieverId,
+      sender: req.body.senderId,
       content: "",
       timestamp: new Date().toISOString(),
     };
